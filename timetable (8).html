@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Timetable</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.icon{display:inline-block;width:1em;height:1em;vertical-align:-0.15em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:linear-gradient(160deg,#EAF4FC 0%,#F3F8FD 45%,#EFF6FB 100%);
+  background-attachment:fixed;
+  padding:16px;
+  min-height:100vh;
+  color:#1B2733;
+}
+.app-wrap{max-width:1200px;margin:0 auto}
+
+/* ── Site-wide nav ── */
+.site-wrap{max-width:1200px;margin:0 auto}
+.site-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 4px;margin-bottom:8px}
+.site-nav-brand{font-size:16px;font-weight:700;color:#15314D;display:flex;align-items:center;gap:8px;cursor:pointer}
+.site-nav-links{display:flex;gap:4px;background:#fff;border:1px solid #DCEBF7;border-radius:10px;padding:4px;box-shadow:0 2px 8px rgba(20,80,140,0.06)}
+.site-nav-link{padding:7px 16px;border-radius:7px;font-size:13px;font-weight:500;border:none;background:transparent;color:#557;cursor:pointer;transition:all 0.15s}
+.site-nav-link:hover{background:#F3FAFF;color:#15314D}
+.site-nav-link.active{background:linear-gradient(135deg,#4FA8E0,#3B86C9);color:#fff;box-shadow:0 2px 8px rgba(59,134,201,0.25)}
+
+/* ── Pages ── */
+.site-page{display:none}
+.site-page.active{display:block}
+
+/* ── Home hero ── */
+.hero{text-align:center;padding:48px 20px 32px}
+.hero-icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#4FA8E0,#3B86C9);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:30px;color:#fff;box-shadow:0 8px 24px rgba(59,134,201,0.30)}
+.hero-title{font-size:28px;font-weight:700;color:#15314D;margin-bottom:8px}
+.hero-sub{font-size:14px;color:#5A7591;max-width:480px;margin:0 auto;line-height:1.6}
+
+/* ── Role cards ── */
+.role-cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:820px;margin:0 auto 40px;padding:0 20px}
+.role-card{background:#fff;border:1px solid #DCEBF7;border-radius:18px;padding:26px 22px;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 10px rgba(20,80,140,0.06)}
+.role-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(20,80,140,0.14);border-color:#A9D2EC}
+.role-card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;color:#fff}
+.role-icon-teacher{background:linear-gradient(135deg,#4FA8E0,#3B86C9)}
+.role-icon-student{background:linear-gradient(135deg,#6FD0B5,#2EA888)}
+.role-card-title{font-size:16px;font-weight:700;color:#15314D;margin-bottom:8px}
+.role-card-desc{font-size:13px;color:#5A7591;line-height:1.6;margin-bottom:16px}
+.role-card-cta{font-size:13px;font-weight:600;color:#3B86C9;display:flex;align-items:center;gap:5px}
+
+@media(max-width:700px){.role-cards{grid-template-columns:1fr}}
+
+/* ── Account panel ── */
+.account-panel{max-width:520px;margin:0 auto 50px;background:#fff;border:1px solid #DCEBF7;border-radius:16px;padding:20px 22px;box-shadow:0 2px 10px rgba(20,80,140,0.06)}
+.account-panel-header{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#15314D;margin-bottom:14px}
+.account-current{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#F3FAFF;border:1px solid #DCEBF7;border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.account-current-info{font-size:12px;color:#5A7591}
+.account-current-code{font-size:16px;font-weight:700;color:#15314D;font-family:monospace;letter-spacing:0.05em;margin-top:2px}
+.account-actions{display:flex;gap:8px;flex-wrap:wrap}
+.account-switch-row{display:flex;gap:8px;margin-top:10px}
+.account-switch-row input{flex:1;text-transform:uppercase}
+.account-note{font-size:12px;color:#8FAEC6;line-height:1.6;margin-top:12px;padding-top:12px;border-top:1px solid #E6F0FA}
+.account-note strong{color:#5A7591}
+.btn-sm{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;white-space:nowrap;transition:all 0.15s}
+.btn-sm-primary{background:linear-gradient(135deg,#4FA8E0,#3B86C9);color:#fff}
+.btn-sm-primary:hover{box-shadow:0 3px 10px rgba(59,134,201,0.30)}
+.btn-sm-secondary{background:#fff;color:#15314D;border:1px solid #D3E6F4}
+.btn-sm-secondary:hover{background:#F3FAFF;border-color:#A9D2EC}
+
+/* ── Student section ── */
+.student-sub{font-size:13px;color:#5A7591;margin-bottom:10px;padding:0 2px}
+.student-filters{margin-bottom:18px}
+.search-box{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #DCEBF7;border-radius:12px;padding:9px 14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(20,80,140,0.05)}
+.search-box .icon{color:#9FB7CB;flex-shrink:0}
+.search-box input{flex:1;border:none;outline:none;font-size:13px;color:#15314D;background:transparent;font-family:inherit}
+.search-box input::placeholder{color:#B8CEDF}
+.day-filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.day-filter-chip{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid #D3E6F4;background:#fff;color:#557;cursor:pointer;transition:all 0.15s}
+.day-filter-chip:hover{border-color:#A9D2EC;background:#F3FAFF}
+.day-filter-chip.active{background:linear-gradient(135deg,#4FA8E0,#3B86C9);border-color:#3B86C9;color:#fff}
+.class-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.class-tile{background:#fff;border:1px solid #DCEBF7;border-radius:16px;padding:18px;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(20,80,140,0.05);position:relative;overflow:hidden}
+.class-tile:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(20,80,140,0.12);border-color:#A9D2EC}
+.class-tile-stripe{position:absolute;top:0;left:0;width:5px;height:100%}
+.class-tile-title{font-size:15px;font-weight:700;color:#15314D;margin-bottom:6px;padding-left:6px}
+.class-tile-desc{font-size:12px;color:#5A7591;margin-bottom:12px;padding-left:6px;min-height:16px}
+.class-tile-meta{display:flex;flex-wrap:wrap;gap:5px;padding-left:6px}
+.class-tile-day{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:#F3FAFF;color:#3B86C9}
+.class-tile-time{font-size:11px;color:#8FAEC6;padding-left:6px;margin-top:8px;display:flex;align-items:center;gap:4px}
+.class-tile-no-results{grid-column:1/-1;text-align:center;padding:40px 20px;color:#9FB7CB;font-size:13px;font-style:italic}
+
+/* ── Postponed / cancelled badges ── */
+.postponed-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;padding:2px 8px;border-radius:10px;background:#FFF1EC;color:#D9622E;margin-bottom:4px}
+.postponed-banner{display:flex;align-items:center;gap:8px;background:#FFF1EC;border:1px solid #F8D2BD;color:#B8501F;font-size:12px;font-weight:500;border-radius:10px;padding:9px 12px;margin-bottom:14px}
+
+/* ── Top bar ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.topbar-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.topbar h1{font-size:17px;font-weight:600;color:#15314D;display:flex;align-items:center;gap:8px}
+.topbar-btns{display:flex;gap:8px}
+.btn-icon{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #CFE3F2;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:500;color:#1B2733;cursor:pointer;box-shadow:0 1px 2px rgba(20,80,140,0.06);transition:all 0.15s}
+.btn-icon:hover{background:#F3FAFF;border-color:#A9D2EC;transform:translateY(-1px);box-shadow:0 3px 8px rgba(20,80,140,0.10)}
+.btn-purple{background:linear-gradient(135deg,#4FA8E0,#3B86C9);border-color:#3B86C9;color:#fff}
+.btn-purple:hover{background:linear-gradient(135deg,#3F98D2,#2E72AE);border-color:#2E72AE;box-shadow:0 4px 12px rgba(59,134,201,0.30)}
+.btn-share{background:linear-gradient(135deg,#6FD0B5,#2EA888);border-color:#2EA888;color:#fff}
+.btn-share:hover{background:linear-gradient(135deg,#5FC2A6,#268F73);border-color:#268F73;box-shadow:0 4px 12px rgba(46,168,136,0.30)}
+
+/* ── Sync status ── */
+.sync-status{display:flex;align-items:center;gap:6px;font-size:12px;color:#5A7591;padding:0 6px}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#3FBF8F;flex-shrink:0;transition:background 0.2s}
+.sync-dot.saving{background:#EFB13F;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* ── Share modal extras ── */
+.share-link-box{display:flex;gap:6px;margin:10px 0}
+.share-link-input{flex:1;padding:8px 10px;border:1px solid #D3E6F4;border-radius:8px;font-size:12px;background:#F3FAFF;color:#2E5577;font-family:monospace;overflow:hidden;text-overflow:ellipsis}
+.btn-copy{padding:8px 14px;border-radius:8px;background:linear-gradient(135deg,#4FA8E0,#3B86C9);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.15s}
+.btn-copy:hover{box-shadow:0 4px 10px rgba(59,134,201,0.30)}
+.btn-copy.copied{background:linear-gradient(135deg,#6FD0B5,#2EA888)}
+.share-note{font-size:12px;color:#5A7591;line-height:1.6;background:#F3FAFF;border-radius:10px;padding:10px 12px;margin-top:4px}
+
+/* ── Month nav ── */
+.month-nav{display:flex;align-items:center;gap:6px}
+.month-label{font-size:15px;font-weight:600;color:#15314D;min-width:130px;text-align:center}
+.nav-btn{background:#fff;border:1px solid #CFE3F2;border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#3B86C9;font-size:18px;line-height:1;transition:all 0.15s}
+.nav-btn:hover{background:#EAF4FC;border-color:#A9D2EC;transform:translateY(-1px)}
+
+/* ── View toggle ── */
+.view-toggle{display:flex;gap:2px;background:#DCEBF7;padding:3px;border-radius:9px}
+.view-toggle-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;font-size:12px;font-weight:500;border:none;background:transparent;color:#557;cursor:pointer;transition:all 0.15s}
+.view-toggle-btn.active{background:#fff;color:#15314D;box-shadow:0 1px 4px rgba(20,80,140,0.14)}
+
+/* ── Table view ── */
+.table-wrap{background:#fff;border:1px solid #DCEBF7;border-radius:14px;box-shadow:0 2px 10px rgba(20,80,140,0.06);overflow:hidden}
+.tt-table-scroll{overflow:auto}
+.tt-table{width:100%;border-collapse:collapse;font-size:12px;min-width:760px}
+.tt-table th,.tt-table td{border:1px solid #E6F0FA;padding:0;vertical-align:top}
+.tt-table thead th{background:#F3FAFF;padding:9px 8px;font-size:11px;font-weight:600;color:#2E5577;text-align:center;text-transform:uppercase;letter-spacing:0.04em;position:sticky;top:0;z-index:5}
+.tt-time-col{width:60px;background:#F3FAFF;text-align:center;font-weight:600;color:#2E5577;font-size:11px;padding:8px 4px;white-space:nowrap;vertical-align:middle}
+.tt-day-col{min-width:100px}
+.tt-cell-inner{display:flex;flex-direction:column;gap:4px;padding:6px;min-height:36px}
+.tt-row-empty td{padding:4px}
+.tt-block{border-radius:6px;padding:5px 7px;border-left:3px solid rgba(0,0,0,0.15);cursor:pointer;-webkit-print-color-adjust:exact;print-color-adjust:exact;transition:all 0.12s}
+.tt-block:hover{filter:brightness(0.96);transform:translateY(-1px);box-shadow:0 3px 8px rgba(20,80,140,0.12)}
+.tt-block-title{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-block-time{font-size:9px;font-weight:600;opacity:0.8;margin-top:1px}
+.tt-block-desc{font-size:9px;opacity:0.65;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-badge{font-size:8px;font-weight:700;opacity:0.6;text-transform:uppercase;margin-bottom:1px}
+.tt-no-rows{padding:30px;text-align:center;color:#9FB7CB;font-size:13px;font-style:italic}
+
+/* ── Mobile accordion (table view on small screens) ── */
+.tt-accordion{display:none}
+.tt-accordion-day{border-bottom:1px solid #E6F0FA}
+.tt-accordion-day:last-child{border-bottom:none}
+.tt-accordion-summary{display:flex;align-items:center;gap:8px;padding:13px 14px;cursor:pointer;list-style:none;background:#fff;transition:background 0.15s}
+.tt-accordion-summary::-webkit-details-marker{display:none}
+.tt-accordion-summary::before{content:'';width:7px;height:7px;border-right:2px solid #9FB7CB;border-bottom:2px solid #9FB7CB;transform:rotate(-45deg);transition:transform 0.2s;flex-shrink:0}
+.tt-accordion-day[open] .tt-accordion-summary::before{transform:rotate(45deg)}
+.tt-accordion-summary:hover{background:#F8FBFE}
+.tt-accordion-summary.is-today{background:#EAF4FC}
+.tt-accordion-day-name{font-size:13px;font-weight:600;color:#15314D}
+.tt-accordion-day-date{font-size:11px;color:#9FB7CB}
+.tt-accordion-count{margin-left:auto;font-size:10px;font-weight:600;color:#3B86C9;background:#EAF4FC;padding:2px 8px;border-radius:10px}
+.tt-accordion-body{padding:8px 14px 14px;display:flex;flex-direction:column;gap:6px;background:#FAFCFE}
+.tt-accordion-empty{font-size:12px;color:#B8CEDF;font-style:italic;padding:4px 0}
+.tt-accordion .tt-block{padding:8px 10px}
+.tt-accordion .tt-block-title{font-size:13px;white-space:normal}
+.tt-accordion .tt-block-time{font-size:11px}
+.tt-accordion .tt-block-desc{font-size:11px;white-space:normal}
+
+@media(max-width:680px){
+  .tt-table-scroll{display:none}
+  .tt-accordion{display:block}
+}
+
+/* ── Week tabs ── */
+.week-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.week-tab{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid #D3E6F4;background:#fff;color:#557;cursor:pointer;transition:all 0.15s;position:relative}
+.week-tab:hover{border-color:#A9D2EC;background:#F3FAFF}
+.week-tab.active{background:linear-gradient(135deg,#4FA8E0,#3B86C9);border-color:#3B86C9;color:#fff;box-shadow:0 2px 8px rgba(59,134,201,0.25)}
+.week-tab-dates{font-size:10px;opacity:0.8;display:block;margin-top:1px}
+.week-tab-override-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#E0940A;margin-left:5px;vertical-align:middle;box-shadow:0 0 0 2px rgba(224,148,10,0.18)}
+.week-tab.active .week-tab-override-dot{background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,0.35)}
+.override-legend{font-size:11px;color:#9FB7CB;margin-bottom:12px;margin-top:-4px;display:flex;align-items:center;gap:5px}
+
+/* ── 7-column grid ── */
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.day-col{background:#fff;border:1px solid #DCEBF7;border-radius:14px;overflow:hidden;min-height:120px;box-shadow:0 2px 8px rgba(20,80,140,0.05);transition:box-shadow 0.2s}
+.day-col:hover{box-shadow:0 4px 16px rgba(20,80,140,0.10)}
+.day-col.is-today{border-color:#7FC1ED;box-shadow:0 0 0 2px rgba(79,168,224,0.20),0 2px 8px rgba(20,80,140,0.08)}
+.day-header{padding:8px 10px;font-size:11px;font-weight:600;color:#2E5577;border-bottom:1px solid #E6F0FA;text-align:center;background:#F3FAFF;letter-spacing:0.04em;text-transform:uppercase;line-height:1.4}
+.day-date{font-size:10px;font-weight:400;color:#8FAEC6;display:block;margin-top:1px}
+.day-body{padding:8px;display:flex;flex-direction:column;gap:6px}
+.day-empty{font-size:11px;color:#B8CEDF;text-align:center;padding:16px 0;font-style:italic}
+
+/* ── Schedule card ── */
+.sched-card{border-radius:8px;padding:7px 9px;cursor:pointer;border-left:4px solid rgba(0,0,0,0.15);transition:all 0.15s;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sched-card:hover{filter:brightness(0.97);transform:translateY(-1px) scale(1.01);box-shadow:0 4px 10px rgba(20,80,140,0.14)}
+.sched-card-week-badge{font-size:8px;font-weight:700;opacity:0.6;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px}
+.sched-card-time{font-size:10px;font-weight:600;opacity:0.8;margin-bottom:2px;white-space:nowrap}
+.sched-card-title{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sched-card-desc{font-size:10px;opacity:0.65;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,40,65,0.45);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:#fff;border-radius:16px;border:1px solid #DCEBF7;width:460px;max-width:96vw;padding:20px;max-height:90vh;overflow-y:auto;box-shadow:0 16px 48px rgba(15,40,65,0.22)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-title{font-size:15px;font-weight:600;color:#15314D}
+.btn-close{background:none;border:none;cursor:pointer;color:#8FAEC6;font-size:18px;padding:2px 6px;border-radius:8px;line-height:1;transition:all 0.15s}
+.btn-close:hover{background:#F3FAFF;color:#557}
+.form-group{margin-bottom:12px}
+.form-label{display:block;font-size:12px;font-weight:600;color:#2E5577;margin-bottom:5px}
+.form-input{width:100%;padding:7px 10px;border:1px solid #D3E6F4;border-radius:9px;font-size:13px;background:#fff;color:#15314D;font-family:inherit;transition:border-color 0.15s}
+.form-input:focus{outline:none;border-color:#3B86C9;box-shadow:0 0 0 3px rgba(59,134,201,0.12)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.days-picker{display:flex;flex-wrap:wrap;gap:6px}
+.day-chip{padding:5px 11px;border-radius:20px;font-size:12px;border:1px solid #D3E6F4;cursor:pointer;color:#557;background:#fff;font-weight:500;transition:all 0.15s}
+.day-chip:hover{border-color:#A9D2EC}
+.day-chip.selected{background:linear-gradient(135deg,#4FA8E0,#3B86C9);border-color:#3B86C9;color:#fff}
+.color-picker-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.color-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform 0.15s;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.color-swatch.selected{border-color:#15314D;transform:scale(1.18)}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:1px solid #E6F0FA}
+.btn-primary{padding:7px 16px;background:linear-gradient(135deg,#4FA8E0,#3B86C9);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.btn-primary:hover{box-shadow:0 4px 12px rgba(59,134,201,0.30);transform:translateY(-1px)}
+.btn-secondary{padding:7px 16px;background:#fff;color:#15314D;border:1px solid #D3E6F4;border-radius:9px;font-size:13px;cursor:pointer;transition:all 0.15s}
+.btn-secondary:hover{background:#F3FAFF;border-color:#A9D2EC}
+.btn-danger{padding:7px 16px;background:#fff;color:#E0524A;border:1px solid #F3C6C2;border-radius:9px;font-size:13px;cursor:pointer;margin-right:auto;transition:all 0.15s}
+.btn-danger:hover{background:#FDF1F0;border-color:#E0524A}
+.detail-field{margin-bottom:10px;font-size:13px;color:#15314D}
+.detail-label{font-size:11px;font-weight:600;color:#9FB7CB;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.05em}
+.detail-days{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.detail-day-chip{padding:2px 9px;border-radius:12px;font-size:11px;background:#EAF4FC;color:#2E5577;font-weight:500}
+
+/* ── Print ── */
+#print-all{display:none}
+.print-week-block{margin-bottom:20px}
+.print-week-heading{font-size:13px;font-weight:700;color:#15314D;margin-bottom:7px;padding-bottom:5px;border-bottom:2px solid #3B86C9;display:flex;align-items:baseline;gap:10px}
+.print-week-range{font-size:11px;font-weight:400;color:#888}
+.print-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.print-table-block table{border-collapse:collapse;width:100%}
+.print-table-block th,.print-table-block td{border:1px solid #ccc}
+
+@media(max-width:900px){.week-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:600px){.week-grid{grid-template-columns:repeat(2,1fr)}}
+
+@media print{
+  @page{size:A4 landscape;margin:8mm}
+  body{background:#fff;padding:0}
+  .app-wrap{display:none}
+  #print-all{display:block!important}
+  .modal-overlay{display:none!important}
+  .print-week-block{break-inside:avoid;page-break-inside:avoid;margin-bottom:14px}
+  .day-col{border:1px solid #ccc!important;border-radius:6px!important}
+  .sched-card{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  .print-grid .day-col{min-height:60px}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+<div class="site-wrap">
+
+  <!-- ══ GLOBAL NAV ══ -->
+  <div class="site-nav">
+    <div class="site-nav-brand" onclick="goHome()">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="M7 13h3v3H7z"/></svg> ClassTable
+    </div>
+    <div class="site-nav-links">
+      <button class="site-nav-link" id="nav-home" onclick="goHome()">Home</button>
+      <button class="site-nav-link" id="nav-teacher" onclick="goPage('teacher')">Teacher</button>
+      <button class="site-nav-link" id="nav-student" onclick="goPage('student')">Student</button>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: HOME ══ -->
+  <div id="page-home" class="site-page active">
+    <div class="hero">
+      <div class="hero-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="M7 13h3v3H7z"/></svg></div>
+      <h1 class="hero-title">Welcome to ClassTable</h1>
+      <p class="hero-sub">A simple shared timetable. Teachers manage the schedule — students check class times.</p>
+    </div>
+
+    <div class="role-cards">
+      <div class="role-card" onclick="goPage('teacher')">
+        <div class="role-card-icon role-icon-teacher"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="13" rx="1"/><path d="M9 21l3-5 3 5M12 16v5"/></svg></div>
+        <div class="role-card-title">I'm a Teacher</div>
+        <div class="role-card-desc">Create, edit, and organize your weekly class schedule. Switch between card and table views, manage per-week changes, and print your timetable.</div>
+        <div class="role-card-cta">Open Dashboard <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </div>
+
+      <div class="role-card" onclick="goPage('student')">
+        <div class="role-card-icon role-icon-student"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></div>
+        <div class="role-card-title">I'm a Student</div>
+        <div class="role-card-desc">Browse all the classes being taught and open any class to see exactly when it meets — days, times, and weekly changes.</div>
+        <div class="role-card-cta">View Classes <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </div>
+    </div>
+
+    <!-- Account panel -->
+    <div class="account-panel">
+      <div class="account-panel-header">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        <span>Your account</span>
+      </div>
+      <div class="account-panel-body" id="account-panel-body"></div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: TEACHER DASHBOARD ══ -->
+  <div id="page-teacher" class="site-page">
+    <div class="app-wrap">
+
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="13" rx="1"/><path d="M9 21l3-5 3 5M12 16v5"/></svg> Teacher Dashboard</h1>
+          <div class="month-nav">
+            <button class="nav-btn" onclick="changeMonth(-1)">&#8249;</button>
+            <span class="month-label" id="month-label"></span>
+            <button class="nav-btn" onclick="changeMonth(1)">&#8250;</button>
+          </div>
+          <div class="view-toggle">
+            <button class="view-toggle-btn active" id="btn-view-card" onclick="setView('card')">
+              <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="14" y="13" width="7" height="7" rx="1"/></svg> Cards
+            </button>
+            <button class="view-toggle-btn" id="btn-view-table" onclick="setView('table')">
+              <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg> Table
+            </button>
+          </div>
+        </div>
+        <div class="topbar-btns">
+          <span class="sync-status" id="sync-status"><span class="sync-dot"></span> Saved</span>
+          <button class="btn-icon btn-share" onclick="showShareModal()"><svg class="icon" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg> Share with students</button>
+          <button class="btn-icon btn-purple" onclick="handlePrint()"><svg class="icon" viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="1"/><path d="M6 17v4h12v-4"/></svg> Print PDF</button>
+          <button class="btn-icon" id="btn-add-sched"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add class</button>
+        </div>
+      </div>
+      <div class="week-tabs" id="week-tabs"></div>
+      <div class="override-legend" id="override-legend" style="display:none">
+        <span class="week-tab-override-dot" style="margin-left:0"></span> = this week has rescheduled or postponed classes
+      </div>
+      <div class="week-grid" id="week-grid"></div>
+      <div class="table-wrap" id="table-wrap" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: STUDENT SECTION ══ -->
+  <div id="page-student" class="site-page">
+    <div class="app-wrap">
+
+      <!-- Student: class list view -->
+      <div id="student-list-view">
+        <div class="topbar">
+          <div class="topbar-left">
+            <h1><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg> All Classes</h1>
+          </div>
+        </div>
+        <p class="student-sub">Search or filter by day to find a class quickly.</p>
+        <div class="student-filters">
+          <div class="search-box">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" id="class-search" placeholder="Search classes by name or description..." oninput="renderClassGrid()">
+          </div>
+          <div class="day-filter-row" id="day-filter-row"></div>
+        </div>
+        <div class="class-grid" id="class-grid"></div>
+      </div>
+
+      <!-- Student: single class timetable view -->
+      <div id="student-class-view" style="display:none">
+        <div class="topbar">
+          <div class="topbar-left">
+            <button class="btn-icon" onclick="backToClassList()"><svg class="icon" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> All classes</button>
+            <h1 id="student-class-title" style="margin-left:4px"></h1>
+          </div>
+          <div class="topbar-btns">
+            <div class="month-nav">
+              <button class="nav-btn" onclick="studentChangeMonth(-1)">&#8249;</button>
+              <span class="month-label" id="student-month-label"></span>
+              <button class="nav-btn" onclick="studentChangeMonth(1)">&#8250;</button>
+            </div>
+            <button class="btn-icon btn-purple" onclick="saveStudentTableAsPng()">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg> Save as PNG
+            </button>
+          </div>
+        </div>
+        <div class="week-tabs" id="student-week-tabs"></div>
+        <div class="table-wrap" id="student-table-wrap"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Print-only full month view -->
+<div id="print-all"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" style="display:none">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+
+<script>
+/* ═══════════════════════════════════════════
+   CONSTANTS & DATA
+═══════════════════════════════════════════ */
+const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAYS_FULL  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS     = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+const COLORS = [
+  {name:'Purple', bg:'#C8C3F5', text:'#2D2880', border:'#9D96E8'},
+  {name:'Teal',   bg:'#7EDCBC', text:'#0A4F3B', border:'#3DBFA0'},
+  {name:'Coral',  bg:'#F4B49A', text:'#5C2010', border:'#E07A55'},
+  {name:'Blue',   bg:'#A8CBF0', text:'#0A3260', border:'#5A9EDD'},
+  {name:'Amber',  bg:'#FAC96A', text:'#4A2E00', border:'#E0940A'},
+  {name:'Pink',   bg:'#F4AECB', text:'#5A1535', border:'#D9689A'},
+  {name:'Green',  bg:'#B0D97A', text:'#1F430A', border:'#72B030'},
+];
+
+// Default sample data (used only the very first time, before anything is saved)
+const DEFAULT_SCHEDULES = [
+  {id:1, title:'Math Class',    days:[1,3,5], start:'13:00', end:'14:30', desc:'Algebra & Geometry', color:0},
+  {id:2, title:'Science Class', days:[2,4],   start:'15:00', end:'16:30', desc:'Physics & Chemistry', color:1},
+  {id:3, title:'English Class', days:[1,2,3,4,5], start:'18:00', end:'19:30', desc:'',                color:3},
+];
+
+let schedules = [];
+let weekOverrides = {};
+let nextId   = 200;
+
+// View state
+let viewYear  = new Date().getFullYear();
+let viewMonth = new Date().getMonth();
+let viewWeek  = 0;
+let currentView = 'card'; // 'card' | 'table'
+let _editDays  = [];
+let _editColor = 0;
+
+/* ═══════════════════════════════════════════
+   ACCOUNT (a.k.a. "room") & PERSISTENCE
+
+   How this actually works, honestly:
+   - This is a single downloaded HTML file with no server, so there's no real
+     database behind it and no real Google Sign-In is possible here — Google's
+     OAuth flow requires a backend to exchange tokens securely, which a static
+     file can't do safely.
+   - What we CAN do: give every teacher an "Account Code" that labels their own
+     saved data on THIS device/browser (via localStorage). Reopen the file later
+     on the same device, type in the same code (or just keep using the URL it
+     already put it in) — your schedule is exactly as you left it. No re-entering.
+   - Moving to a different device/browser still requires the "Share / Transfer"
+     link, because that link is the only thing that can actually carry the full
+     schedule data across machines without a server. The Account panel makes
+     this limitation explicit instead of pretending otherwise.
+═══════════════════════════════════════════ */
+function generateRoomCode(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+function normalizeCode(raw){
+  return (raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+}
+
+function getRoomCodeFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get('room');
+}
+
+function setRoomCodeInUrl(code){
+  const url = new URL(window.location.href);
+  url.searchParams.set('room', code);
+  window.history.replaceState({}, '', url.toString());
+}
+
+let ROOM_CODE = getRoomCodeFromUrl();
+let IS_NEW_ROOM = false;
+if (!ROOM_CODE) {
+  ROOM_CODE = generateRoomCode();
+  IS_NEW_ROOM = true;
+  setRoomCodeInUrl(ROOM_CODE);
+}
+
+function storageKey(code){ return `classtable_room_${code || ROOM_CODE}`; }
+function accountExists(code){
+  try { return localStorage.getItem(storageKey(code)) !== null; }
+  catch(e){ return false; }
+}
+
+function encodeStateForUrl(state){
+  try { return btoa(encodeURIComponent(JSON.stringify(state))); }
+  catch(e){ return null; }
+}
+function decodeStateFromUrl(str){
+  try { return JSON.parse(decodeURIComponent(atob(str))); }
+  catch(e){ return null; }
+}
+
+function loadRoomData(){
+  // 1. Prefer data embedded in the URL hash (this is what makes a shared/transfer
+  //    link work on a device that has never touched localStorage for this room).
+  if (window.location.hash && window.location.hash.length > 1) {
+    const hashData = decodeStateFromUrl(window.location.hash.slice(1));
+    if (hashData && Array.isArray(hashData.schedules)) {
+      schedules = hashData.schedules;
+      weekOverrides = hashData.weekOverrides || {};
+      nextId = hashData.nextId || 200;
+      saveRoomData(); // mirror into localStorage too, so refresh keeps working without the hash
+      return;
+    }
+  }
+  // 2. Fall back to localStorage for this room.
+  try {
+    const raw = localStorage.getItem(storageKey());
+    if (raw) {
+      const data = JSON.parse(raw);
+      schedules = data.schedules || [];
+      weekOverrides = data.weekOverrides || {};
+      nextId = data.nextId || 200;
+      return;
+    }
+  } catch(e){ /* localStorage unavailable, ignore */ }
+
+  // 3. Brand new room — seed with sample data so it's not empty.
+  schedules = JSON.parse(JSON.stringify(DEFAULT_SCHEDULES));
+  weekOverrides = {};
+  nextId = 200;
+  saveRoomData();
+}
+
+let _saveTimer = null;
+function saveRoomData(){
+  setSyncStatus('saving');
+  const data = { schedules, weekOverrides, nextId };
+  try { localStorage.setItem(storageKey(), JSON.stringify(data)); }
+  catch(e){ /* storage full or unavailable */ }
+
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(() => setSyncStatus('saved'), 350);
+}
+
+function setSyncStatus(state){
+  const el = document.getElementById('sync-status');
+  if(!el) return;
+  const dot = el.querySelector('.sync-dot');
+  if(state === 'saving'){
+    dot.classList.add('saving');
+    el.lastChild.textContent = ' Saving…';
+  } else {
+    dot.classList.remove('saving');
+    el.lastChild.textContent = ' Saved';
+  }
+}
+
+/* ── Account panel (Home page) ── */
+function renderAccountPanel(){
+  const body = document.getElementById('account-panel-body');
+  if(!body) return;
+  body.innerHTML = `
+    <div class="account-current">
+      <div>
+        <div class="account-current-info">${IS_NEW_ROOM ? 'New account created on this device' : 'Signed in on this device'}</div>
+        <div class="account-current-code">${ROOM_CODE}</div>
+      </div>
+      <div class="account-actions">
+        <button class="btn-sm btn-sm-secondary" onclick="createNewAccount()">New account</button>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:0">
+      <label class="form-label">Switch to a different account code (same device)</label>
+      <div class="account-switch-row">
+        <input class="form-input" id="account-code-input" placeholder="e.g. AB12CD" maxlength="6" onkeydown="if(event.key==='Enter')switchAccount()">
+        <button class="btn-sm btn-sm-primary" onclick="switchAccount()">Sign in</button>
+      </div>
+    </div>
+
+    <div class="account-note">
+      <strong>How this works:</strong> your account code saves your schedule right here
+      in this browser, so closing the tab or refreshing never loses anything — just
+      come back and you're signed in automatically. Real Google Sign-In isn't possible
+      in a file like this (it needs a server), so to move your schedule to a
+      <em>different</em> device, use <strong>Share with students</strong> from the
+      Teacher Dashboard and open that link on the other device instead.
+    </div>
+  `;
+}
+
+function createNewAccount(){
+  if(!confirm('Create a brand new account? This switches you away from your current schedule (it stays saved under its old code if you need it again).')) return;
+  const newCode = generateRoomCode();
+  setRoomCodeInUrl(newCode);
+  window.location.reload();
+}
+
+function switchAccount(){
+  const input = document.getElementById('account-code-input');
+  const code = normalizeCode(input.value);
+  if(code.length !== 6){
+    alert('Account codes are 6 characters, e.g. AB12CD');
+    return;
+  }
+  setRoomCodeInUrl(code);
+  window.location.reload();
+}
+
+function getShareUrl(){
+  const data = { schedules, weekOverrides, nextId };
+  const hash = encodeStateForUrl(data);
+  const url = new URL(window.location.href);
+  url.hash = hash || '';
+  return url.toString();
+}
+
+function showShareModal(){
+  const link = getShareUrl();
+  showModal(`
+    <div class="modal-header">
+      <span class="modal-title">Share with students</span>
+      <button class="btn-close" onclick="hideModal()">&#x2715;</button>
+    </div>
+    <p style="font-size:13px;color:#5A7591;line-height:1.6">
+      Send this link to your students. It opens straight into the Student section
+      with your current schedule — no sign-in needed.
+    </p>
+    <div class="share-link-box">
+      <input class="share-link-input" id="share-link-field" value="${link}" readonly onclick="this.select()">
+      <button class="btn-copy" id="btn-copy-link" onclick="copyShareLink()">Copy link</button>
+    </div>
+    <div class="share-note">
+      <strong>Tip:</strong> every time you add, edit, or delete a class, re-open this
+      window and copy the link again before sending it — the link is a snapshot of
+      your schedule at the moment you copy it.
+    </div>
+    <div class="share-note" style="margin-top:8px">
+      <strong>Using a new device yourself?</strong> Open this same link on your other
+      phone/laptop and it will load this exact schedule there too — that's also how
+      you move your own account between devices, since there's no real account sync
+      without a server.
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="hideModal()">Close</button>
+    </div>
+  `);
+}
+
+function copyShareLink(){
+  const field = document.getElementById('share-link-field');
+  field.select();
+  navigator.clipboard?.writeText(field.value).then(()=>{
+    const btn = document.getElementById('btn-copy-link');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy link'; btn.classList.remove('copied'); }, 1800);
+  }).catch(()=>{
+    document.execCommand('copy');
+  });
+}
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function timeToMin(t){const[h,m]=t.split(':').map(Number);return h*60+m}
+
+function getWeeksOfMonth(year, month) {
+  const weeks = [];
+  const lastDay = new Date(year, month + 1, 0);
+  let cursor = new Date(year, month, 1);
+  const dow = cursor.getDay(); // 0 = Sunday
+  cursor.setDate(cursor.getDate() - dow); // back up to the Sunday on/before the 1st
+  let wi = 0;
+  while (cursor <= lastDay) {
+    const days = [];
+    for (let d = 0; d < 7; d++) { days.push(new Date(cursor)); cursor.setDate(cursor.getDate()+1); }
+    const fmt = d => `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
+    weeks.push({index:wi, label:`Week ${wi+1}`, range:`${fmt(days[0])} – ${fmt(days[6])}`, days});
+    wi++;
+  }
+  return weeks;
+}
+
+function weekKey(y,m,wi){ return `${y}-${m}-W${wi}`; }
+function getOverride(y,m,wi){
+  const k=weekKey(y,m,wi);
+  if(!weekOverrides[k]) weekOverrides[k]={extra:[],hidden:[]};
+  return weekOverrides[k];
+}
+
+// Returns true if this specific week has any rescheduling activity —
+// either a "this week only" extra class, or a regular class hidden/postponed.
+// Reads weekOverrides directly (no mutation) so it's safe to call for every
+// week tab without creating empty override entries along the way.
+function weekHasOverride(y,m,wi){
+  const k = weekKey(y,m,wi);
+  const ov = weekOverrides[k];
+  if(!ov) return false;
+  return (ov.extra && ov.extra.length > 0) || (ov.hidden && ov.hidden.length > 0);
+}
+
+/* ═══════════════════════════════════════════
+   TIMETABLE RENDER
+═══════════════════════════════════════════ */
+function changeMonth(delta) {
+  viewMonth += delta;
+  if(viewMonth<0){viewMonth=11;viewYear--;}
+  if(viewMonth>11){viewMonth=0;viewYear++;}
+  viewWeek=0;
+  renderAll();
+}
+
+function selectWeek(wi){ viewWeek=wi; renderAll(); }
+
+function setView(view) {
+  currentView = view;
+  document.getElementById('btn-view-card').classList.toggle('active', view === 'card');
+  document.getElementById('btn-view-table').classList.toggle('active', view === 'table');
+  document.getElementById('week-grid').style.display  = view === 'card'  ? 'grid' : 'none';
+  document.getElementById('table-wrap').style.display = view === 'table' ? 'block' : 'none';
+  renderAll();
+}
+
+function renderAll() {
+  const weeks = getWeeksOfMonth(viewYear, viewMonth);
+  if(viewWeek >= weeks.length) viewWeek = weeks.length-1;
+  document.getElementById('month-label').textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+
+  const tabsEl = document.getElementById('week-tabs');
+  let anyOverrideInMonth = false;
+  tabsEl.innerHTML = weeks.map((w,wi) => {
+    const hasOverride = weekHasOverride(viewYear, viewMonth, wi);
+    if (hasOverride) anyOverrideInMonth = true;
+    return `
+    <button class="week-tab${wi===viewWeek?' active':''}" onclick="selectWeek(${wi})">
+      ${w.label}${hasOverride?'<span class="week-tab-override-dot" title="This week has rescheduled or postponed classes"></span>':''}
+      <span class="week-tab-dates">${w.range}</span>
+    </button>`;
+  }).join('');
+  document.getElementById('override-legend').style.display = anyOverrideInMonth ? 'flex' : 'none';
+
+  if (currentView === 'table') {
+    renderTableView(weeks[viewWeek], viewWeek);
+  } else {
+    renderWeekGrid(weeks[viewWeek], viewWeek);
+  }
+}
+
+function renderWeekGrid(week, wi) {
+  const override = getOverride(viewYear, viewMonth, wi);
+  const grid = document.getElementById('week-grid');
+  grid.innerHTML = '';
+
+  const today = new Date();
+  const todayStr = today.toDateString();
+
+  week.days.forEach((date, di) => {
+    const baseScheds  = schedules.filter(s => !override.hidden.includes(s.id) && s.days.includes(di));
+    const extraScheds = override.extra.filter(s => s.days.includes(di));
+    const allScheds   = [...baseScheds, ...extraScheds].sort((a,b)=>timeToMin(a.start)-timeToMin(b.start));
+    const inMonth = date.getMonth() === viewMonth;
+    const isToday = date.toDateString() === todayStr;
+    const dateStr = `${date.getDate()} ${MONTHS[date.getMonth()].slice(0,3)}`;
+
+    const cardsHtml = allScheds.length
+      ? allScheds.map(s => schedCardHtml(s, di, override)).join('')
+      : `<div class="day-empty">—</div>`;
+
+    grid.innerHTML += `
+      <div class="day-col${isToday?' is-today':''}" style="${inMonth?'':'opacity:0.42'}">
+        <div class="day-header">${DAYS_FULL[di]}<span class="day-date">${dateStr}${isToday?' · Today':''}</span></div>
+        <div class="day-body">${cardsHtml}</div>
+      </div>`;
+  });
+
+  // Attach click listeners
+  [...schedules, ...override.extra].forEach(s => {
+    s.days.forEach(di => {
+      const el = document.getElementById(`card-${s.id}-${di}`);
+      if(el) el.addEventListener('click', () => showSchedDetail(s));
+    });
+  });
+}
+
+function schedCardHtml(s, di, override) {
+  const c = COLORS[s.color % COLORS.length];
+  const isExtra = !!override.extra.find(e=>e.id===s.id);
+  const badge = isExtra ? `<div class="sched-card-week-badge">This week only</div>` : '';
+  const desc  = s.desc ? `<div class="sched-card-desc">${s.desc}</div>` : '';
+
+  return `<div class="sched-card" id="card-${s.id}-${di}"
+    style="background:${c.bg};color:${c.text};border-left-color:${c.border};-webkit-print-color-adjust:exact;print-color-adjust:exact">
+    ${badge}
+    <div class="sched-card-time">${s.start} – ${s.end}</div>
+    <div class="sched-card-title">${s.title}</div>
+    ${desc}
+  </div>`;
+}
+
+/* ── TABLE VIEW ── */
+function renderTableView(week, wi) {
+  const override = getOverride(viewYear, viewMonth, wi);
+  const wrap = document.getElementById('table-wrap');
+
+  // Build per-day schedule lists
+  const dayScheds = week.days.map((date, di) => {
+    const base  = schedules.filter(s => !override.hidden.includes(s.id) && s.days.includes(di));
+    const extra = override.extra.filter(s => s.days.includes(di));
+    return [...base, ...extra].sort((a,b) => timeToMin(a.start) - timeToMin(b.start));
+  });
+
+  const anyClasses = dayScheds.some(list => list.length > 0);
+  if (!anyClasses) {
+    wrap.innerHTML = `<div class="tt-no-rows">No classes scheduled this week.</div>`;
+    return;
+  }
+
+  const today = new Date();
+  const todayStr = today.toDateString();
+
+  // ── Desktop: wide table, one row per distinct start time ──
+  const timeSet = new Set();
+  dayScheds.forEach(list => list.forEach(s => timeSet.add(s.start)));
+  const times = Array.from(timeSet).sort((a,b) => timeToMin(a) - timeToMin(b));
+
+  let tableHtml = `<table class="tt-table"><thead><tr>
+    <th class="tt-time-col">Time</th>
+    ${week.days.map((date,di) => {
+      const dateStr = `${date.getDate()} ${MONTHS[date.getMonth()].slice(0,3)}`;
+      const isToday = date.toDateString() === todayStr;
+      return `<th class="tt-day-col"${isToday?' style="background:#EAF4FC;color:#3B86C9"':''}>${DAYS_FULL[di]}<br><span style="font-weight:400;color:${isToday?'#3B86C9':'#aaa'};font-size:10px">${dateStr}${isToday?' · Today':''}</span></th>`;
+    }).join('')}
+  </tr></thead><tbody>`;
+
+  times.forEach(t => {
+    tableHtml += `<tr><td class="tt-time-col">${t}</td>`;
+    week.days.forEach((date, di) => {
+      const matches = dayScheds[di].filter(s => s.start === t);
+      const cellHtml = matches.length
+        ? matches.map(s => tableBlockHtml(s, di, override)).join('')
+        : '';
+      tableHtml += `<td><div class="tt-cell-inner">${cellHtml}</div></td>`;
+    });
+    tableHtml += `</tr>`;
+  });
+  tableHtml += `</tbody></table>`;
+
+  // ── Mobile: accordion, one expandable section per day ──
+  const todayIdx = week.days.findIndex(d => d.toDateString() === todayStr);
+  let accordionHtml = `<div class="tt-accordion">`;
+  week.days.forEach((date, di) => {
+    const dateStr = `${date.getDate()} ${MONTHS[date.getMonth()].slice(0,3)}`;
+    const isToday = date.toDateString() === todayStr;
+    const list = dayScheds[di];
+    const openAttr = (isToday || (todayIdx === -1 && di === 0)) ? ' open' : '';
+    const itemsHtml = list.length
+      ? list.map(s => tableBlockHtml(s, di, override)).join('')
+      : `<div class="tt-accordion-empty">No classes</div>`;
+    accordionHtml += `
+      <details class="tt-accordion-day"${openAttr}>
+        <summary class="tt-accordion-summary${isToday?' is-today':''}">
+          <span class="tt-accordion-day-name">${DAYS_FULL[di]}${isToday?' · Today':''}</span>
+          <span class="tt-accordion-day-date">${dateStr}</span>
+          <span class="tt-accordion-count">${list.length ? list.length + (list.length===1?' class':' classes') : ''}</span>
+        </summary>
+        <div class="tt-accordion-body">${itemsHtml}</div>
+      </details>`;
+  });
+  accordionHtml += `</div>`;
+
+  wrap.innerHTML = `
+    <div class="tt-table-scroll">${tableHtml}</div>
+    ${accordionHtml}
+  `;
+
+  // Attach click listeners (covers both the table cells and accordion items, since
+  // tableBlockHtml is reused for both and ids are unique per render target)
+  [...schedules, ...override.extra].forEach(s => {
+    s.days.forEach(di => {
+      document.querySelectorAll(`[data-sid="${s.id}"][data-di="${di}"]`).forEach(el => {
+        el.addEventListener('click', () => showSchedDetail(s));
+      });
+    });
+  });
+}
+
+function tableBlockHtml(s, di, override) {
+  const c = COLORS[s.color % COLORS.length];
+  const isExtra = !!override.extra.find(e => e.id === s.id);
+  const badge = isExtra ? `<div class="tt-badge">This week only</div>` : '';
+  const desc  = s.desc ? `<div class="tt-block-desc">${s.desc}</div>` : '';
+  return `<div class="tt-block" data-sid="${s.id}" data-di="${di}"
+    style="background:${c.bg};color:${c.text};border-left-color:${c.border};-webkit-print-color-adjust:exact;print-color-adjust:exact">
+    ${badge}
+    <div class="tt-block-title">${s.title}</div>
+    <div class="tt-block-time">${s.start}–${s.end}</div>
+    ${desc}
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   SCHEDULE MODAL (TIMETABLE PAGE)
+═══════════════════════════════════════════ */
+function showModal(html){
+  document.getElementById('modal-content').innerHTML=html;
+  document.getElementById('modal').style.display='flex';
+}
+function hideModal(){document.getElementById('modal').style.display='none';}
+
+function showSchedDetail(s) {
+  const override = getOverride(viewYear, viewMonth, viewWeek);
+  const c = COLORS[s.color % COLORS.length];
+  const isBase  = !!schedules.find(b=>b.id===s.id);
+  const isExtra = !!override.extra.find(e=>e.id===s.id);
+  const dayNames = s.days.map(d=>DAYS_FULL[d]);
+
+  const weekBtns = isBase
+    ? `<button class="btn-secondary" style="font-size:12px" onclick="hideThisWeek(${s.id})"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.1 5.5A10.4 10.4 0 0112 5c5 0 9 4 10 7-.4 1.1-1.3 2.6-2.7 3.9M6.7 6.7C4.6 8 3.2 9.9 2 12c1 3 5 7 10 7 1.3 0 2.5-.2 3.6-.6"/></svg> Hide this week</button>`
+    : `<button class="btn-danger" onclick="removeExtra(${s.id})"><svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 13a1 1 0 001 1h10a1 1 0 001-1l1-13M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg> Remove</button>`;
+
+  showModal(`
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:14px;height:14px;border-radius:50%;background:${c.bg};border:2px solid ${c.border};flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact"></div>
+        <span class="modal-title">${s.title}</span>
+        ${isExtra?'<span style="font-size:10px;font-weight:600;color:#E0940A;background:#FFF3D0;border-radius:6px;padding:2px 7px">This week only</span>':''}
+      </div>
+      <button class="btn-close" onclick="hideModal()">&#x2715;</button>
+    </div>
+    <div class="detail-field"><div class="detail-label">Time</div>${s.start} – ${s.end}</div>
+    <div class="detail-field"><div class="detail-label">Days</div>
+      <div class="detail-days">${dayNames.map(d=>`<span class="detail-day-chip">${d}</span>`).join('')}</div>
+    </div>
+    ${s.desc?`<div class="detail-field"><div class="detail-label">Description</div>${s.desc}</div>`:''}
+    <div class="modal-footer">
+      ${weekBtns}
+      <button class="btn-secondary" onclick="hideModal()">Close</button>
+      <button class="btn-primary" onclick="showSchedEdit(${s.id},${isExtra})"><svg class="icon" viewBox="0 0 24 24"><path d="M11 4H5a2 2 0 00-2 2v13a2 2 0 002 2h13a2 2 0 002-2v-6"/><path d="M18.4 2.6a2 2 0 012.8 2.8L11 15.6 7 16.6l1-4L18.4 2.6z"/></svg> Edit</button>
+    </div>`);
+}
+
+function hideThisWeek(id){
+  const ov=getOverride(viewYear,viewMonth,viewWeek);
+  if(!ov.hidden.includes(id)) ov.hidden.push(id);
+  saveRoomData();
+  renderAll(); hideModal();
+}
+function removeExtra(id){
+  const ov=getOverride(viewYear,viewMonth,viewWeek);
+  ov.extra=ov.extra.filter(s=>s.id!==id);
+  saveRoomData();
+  renderAll(); hideModal();
+}
+function deleteSchedule(id){
+  schedules=schedules.filter(s=>s.id!==id);
+  saveRoomData();
+  renderAll(); hideModal();
+}
+
+function showSchedEdit(id, isExtra){
+  let s;
+  if(isExtra){ const ov=getOverride(viewYear,viewMonth,viewWeek); s=ov.extra.find(e=>e.id===id); }
+  else s=schedules.find(b=>b.id===id);
+  if(s) showAddSchedModal(s, isExtra);
+}
+
+function showAddSchedModal(existing, isExtra) {
+  const isEdit = !!existing;
+  const data = existing||{title:'',days:[],start:'13:00',end:'14:00',desc:'',color:0};
+  _editDays  = [...data.days];
+  _editColor = data.color;
+
+  const weeks = getWeeksOfMonth(viewYear, viewMonth);
+  const wkLabel = weeks[viewWeek]?weeks[viewWeek].label:'this week';
+
+  const swatches = COLORS.map((c,i)=>`
+    <div class="color-swatch${data.color===i?' selected':''}"
+      style="background:${c.bg};border-color:${data.color===i?'#1a1a1a':'transparent'};-webkit-print-color-adjust:exact;print-color-adjust:exact"
+      onclick="selectColor(this,${i})" title="${c.name}"></div>`).join('');
+
+  const chips = DAYS_SHORT.map((d,i)=>
+    `<div class="day-chip${data.days.includes(i)?' selected':''}" onclick="toggleDay(this,${i})">${d}</div>`
+  ).join('');
+
+  const scopeHtml = !isEdit ? `
+    <div class="form-group">
+      <label class="form-label">Apply to</label>
+      <select class="form-input" id="f-scope">
+        <option value="all">Every week (regular class)</option>
+        <option value="week">This week only (${wkLabel})</option>
+      </select>
+    </div>` : '';
+
+  const deleteBtn = isEdit
+    ? (isExtra
+        ? `<button class="btn-danger" onclick="removeExtra(${data.id})"><svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 13a1 1 0 001 1h10a1 1 0 001-1l1-13M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg> Delete</button>`
+        : `<button class="btn-danger" onclick="deleteSchedule(${data.id})"><svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 13a1 1 0 001 1h10a1 1 0 001-1l1-13M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg> Delete</button>`)
+    : '';
+
+  showModal(`
+    <div class="modal-header">
+      <span class="modal-title">${isEdit?'Edit class':'New class'}</span>
+      <button class="btn-close" onclick="hideModal()">&#x2715;</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Class title</label>
+      <input class="form-input" id="f-title" value="${data.title}" placeholder="e.g. Math Class">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Days</label>
+      <div class="days-picker">${chips}</div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Start time</label>
+        <input class="form-input" type="time" id="f-start" value="${data.start}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">End time</label>
+        <input class="form-input" type="time" id="f-end" value="${data.end}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description (optional)</label>
+      <input class="form-input" id="f-desc" value="${data.desc||''}" placeholder="Add notes...">
+    </div>
+    ${scopeHtml}
+    <div class="form-group">
+      <label class="form-label">Color</label>
+      <div class="color-picker-row">${swatches}</div>
+    </div>
+    <div class="modal-footer">
+      ${deleteBtn}
+      <button class="btn-secondary" onclick="hideModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveSchedule('${isEdit?data.id:'null'}',${!!isExtra})">${isEdit?'Save changes':'Add class'}</button>
+    </div>`);
+}
+
+function toggleDay(el,di){
+  const idx=_editDays.indexOf(di);
+  if(idx>=0){_editDays.splice(idx,1);el.classList.remove('selected')}
+  else{_editDays.push(di);el.classList.add('selected')}
+}
+function selectColor(el,ci){
+  document.querySelectorAll('.color-swatch').forEach(e=>{e.classList.remove('selected');e.style.borderColor='transparent'});
+  el.classList.add('selected');el.style.borderColor='#1a1a1a';_editColor=ci;
+}
+
+function timeRangesOverlap(s1, e1, s2, e2) {
+  return timeToMin(s1) < timeToMin(e2) && timeToMin(s2) < timeToMin(e1);
+}
+
+// Finds classes that share at least one day AND overlap in time with the given entry.
+// excludeId lets us skip comparing the class against itself while editing.
+function findConflicts(days, start, end, excludeId) {
+  const conflicts = [];
+  const checkList = [...schedules, ...getOverride(viewYear, viewMonth, viewWeek).extra];
+  checkList.forEach(s => {
+    if (s.id === excludeId) return;
+    const sharedDays = s.days.filter(d => days.includes(d));
+    if (!sharedDays.length) return;
+    if (timeRangesOverlap(start, end, s.start, s.end)) {
+      conflicts.push({ schedule: s, days: sharedDays });
+    }
+  });
+  return conflicts;
+}
+
+function saveSchedule(id, isExtra, skipConflictCheck){
+  const title=document.getElementById('f-title').value.trim();
+  const start=document.getElementById('f-start').value;
+  const end  =document.getElementById('f-end').value;
+  const desc =document.getElementById('f-desc').value.trim();
+  const scopeEl=document.getElementById('f-scope');
+  const scope=scopeEl?scopeEl.value:(isExtra?'week':'all');
+  if(!title){alert('Please enter a title');return;}
+  if(!_editDays.length){alert('Please select at least one day');return;}
+  if(!start||!end){alert('Please set times');return;}
+  if(timeToMin(end)<=timeToMin(start)){alert('End must be after start');return;}
+
+  const idNum=id==='null'?null:Number(id);
+
+  // Conflict check — skip if the teacher already confirmed via the warning dialog.
+  if (!skipConflictCheck) {
+    const conflicts = findConflicts(_editDays, start, end, idNum);
+    if (conflicts.length) {
+      showConflictWarning(conflicts, () => saveSchedule(id, isExtra, true));
+      return;
+    }
+  }
+
+  if(idNum!==null){
+    if(isExtra){const ov=getOverride(viewYear,viewMonth,viewWeek);const s=ov.extra.find(s=>s.id===idNum);if(s)Object.assign(s,{title,days:[..._editDays],start,end,desc,color:_editColor});}
+    else{const s=schedules.find(s=>s.id===idNum);if(s)Object.assign(s,{title,days:[..._editDays],start,end,desc,color:_editColor});}
+  } else {
+    const entry={id:nextId++,title,days:[..._editDays],start,end,desc,color:_editColor};
+    if(scope==='week'){const ov=getOverride(viewYear,viewMonth,viewWeek);ov.extra.push(entry);}
+    else schedules.push(entry);
+  }
+  saveRoomData();
+  renderAll(); hideModal();
+}
+
+function showConflictWarning(conflicts, onConfirm) {
+  const list = conflicts.map(c => {
+    const dayNames = c.days.map(d => DAYS_SHORT[d]).join(', ');
+    return `<li><strong>${c.schedule.title}</strong> (${c.schedule.start}–${c.schedule.end}) on ${dayNames}</li>`;
+  }).join('');
+
+  showModal(`
+    <div class="modal-header">
+      <span class="modal-title">⚠️ Time conflict</span>
+      <button class="btn-close" onclick="hideModal()">&#x2715;</button>
+    </div>
+    <p style="font-size:13px;color:#5A7591;line-height:1.6;margin-bottom:8px">
+      This class overlaps with ${conflicts.length === 1 ? 'an existing class' : 'existing classes'}:
+    </p>
+    <ul style="font-size:13px;color:#15314D;line-height:1.8;margin:0 0 12px 18px">${list}</ul>
+    <p style="font-size:12px;color:#9FB7CB">You can save anyway, or close this and adjust the time/days.</p>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="hideModal()">Go back and edit</button>
+      <button class="btn-primary" id="btn-confirm-conflict">Save anyway</button>
+    </div>
+  `);
+  document.getElementById('btn-confirm-conflict').addEventListener('click', () => {
+    onConfirm();
+  });
+}
+
+/* ═══════════════════════════════════════════
+   PRINT — ALL WEEKS
+═══════════════════════════════════════════ */
+function buildWeekGridHtml(week, wi) {
+  const ov = getOverride(viewYear, viewMonth, wi);
+  let cols = '';
+  week.days.forEach((date, di) => {
+    const base  = schedules.filter(s=>!ov.hidden.includes(s.id)&&s.days.includes(di));
+    const extra = ov.extra.filter(s=>s.days.includes(di));
+    const all   = [...base,...extra].sort((a,b)=>timeToMin(a.start)-timeToMin(b.start));
+    const inMonth = date.getMonth()===viewMonth;
+    const dateStr = `${date.getDate()} ${MONTHS[date.getMonth()].slice(0,3)}`;
+    const cardsHtml = all.length
+      ? all.map(s=>{
+          const c=COLORS[s.color%COLORS.length];
+          const isExtra=!!ov.extra.find(e=>e.id===s.id);
+          const badge=isExtra?`<div style="font-size:8px;font-weight:700;opacity:0.6;text-transform:uppercase;margin-bottom:1px">This week only</div>`:'';
+          const desc=s.desc?`<div style="font-size:9px;opacity:0.65;margin-top:1px">${s.desc}</div>`:'';
+          return `<div style="border-radius:5px;padding:5px 7px;border-left:3px solid ${c.border};background:${c.bg};color:${c.text};margin-bottom:4px;-webkit-print-color-adjust:exact;print-color-adjust:exact">
+            ${badge}
+            <div style="font-size:9px;font-weight:600;opacity:0.8;margin-bottom:1px">${s.start}–${s.end}</div>
+            <div style="font-size:11px;font-weight:700">${s.title}</div>
+            ${desc}
+          </div>`;
+        }).join('')
+      : `<div style="font-size:10px;color:#bbb;text-align:center;padding:8px 0">—</div>`;
+    cols+=`<div class="day-col" style="${inMonth?'':'opacity:0.4'}">
+      <div class="day-header">${DAYS_FULL[di]}<span class="day-date">${dateStr}</span></div>
+      <div class="day-body">${cardsHtml}</div>
+    </div>`;
+  });
+  return cols;
+}
+
+function printAll(){
+  const weeks=getWeeksOfMonth(viewYear,viewMonth);
+  const el=document.getElementById('print-all');
+  let html=`<div style="margin-bottom:14px">
+    <span style="font-size:17px;font-weight:700;color:#1a1a1a">${MONTHS[viewMonth]} ${viewYear}</span>
+    <span style="font-size:12px;color:#888;margin-left:10px">${weeks.length} week${weeks.length>1?'s':''}</span>
+  </div>`;
+  weeks.forEach((week,wi)=>{
+    html+=`<div class="print-week-block">
+      <div class="print-week-heading">${week.label}<span class="print-week-range">${week.range}</span></div>
+      <div class="print-grid">${buildWeekGridHtml(week,wi)}</div>
+    </div>`;
+  });
+  el.innerHTML=html;
+  window.print();
+}
+
+function buildTableHtml(week, wi) {
+  const ov = getOverride(viewYear, viewMonth, wi);
+  const dayScheds = week.days.map((date, di) => {
+    const base  = schedules.filter(s => !ov.hidden.includes(s.id) && s.days.includes(di));
+    const extra = ov.extra.filter(s => s.days.includes(di));
+    return [...base, ...extra].sort((a,b) => timeToMin(a.start) - timeToMin(b.start));
+  });
+
+  const timeSet = new Set();
+  dayScheds.forEach(list => list.forEach(s => timeSet.add(s.start)));
+  const times = Array.from(timeSet).sort((a,b) => timeToMin(a) - timeToMin(b));
+
+  if (!times.length) {
+    return `<div style="padding:20px;text-align:center;color:#aaa;font-style:italic">No classes scheduled this week.</div>`;
+  }
+
+  let html = `<table class="tt-table" style="width:100%"><thead><tr>
+    <th class="tt-time-col">Time</th>
+    ${week.days.map((date,di) => {
+      const dateStr = `${date.getDate()} ${MONTHS[date.getMonth()].slice(0,3)}`;
+      return `<th class="tt-day-col">${DAYS_FULL[di]}<br><span style="font-weight:400;color:#888;font-size:10px">${dateStr}</span></th>`;
+    }).join('')}
+  </tr></thead><tbody>`;
+
+  times.forEach(t => {
+    html += `<tr><td class="tt-time-col">${t}</td>`;
+    week.days.forEach((date, di) => {
+      const matches = dayScheds[di].filter(s => s.start === t);
+      const cellHtml = matches.map(s => {
+        const c = COLORS[s.color % COLORS.length];
+        const isExtra = !!ov.extra.find(e => e.id === s.id);
+        const badge = isExtra ? `<div style="font-size:8px;font-weight:700;opacity:0.6;text-transform:uppercase;margin-bottom:1px">This week only</div>` : '';
+        const desc  = s.desc ? `<div style="font-size:9px;opacity:0.65;margin-top:1px">${s.desc}</div>` : '';
+        return `<div style="border-radius:5px;padding:5px 7px;border-left:3px solid ${c.border};background:${c.bg};color:${c.text};margin-bottom:4px;-webkit-print-color-adjust:exact;print-color-adjust:exact">
+          ${badge}
+          <div style="font-size:11px;font-weight:700">${s.title}</div>
+          <div style="font-size:9px;font-weight:600;opacity:0.8;margin-top:1px">${s.start}–${s.end}</div>
+          ${desc}
+        </div>`;
+      }).join('');
+      html += `<td><div class="tt-cell-inner">${cellHtml}</div></td>`;
+    });
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table>`;
+  return html;
+}
+
+function printTable(){
+  const weeks = getWeeksOfMonth(viewYear, viewMonth);
+  const week  = weeks[viewWeek];
+  const el = document.getElementById('print-all');
+  el.innerHTML = `<div style="margin-bottom:14px">
+    <span style="font-size:17px;font-weight:700;color:#1a1a1a">${MONTHS[viewMonth]} ${viewYear}</span>
+    <span style="font-size:12px;color:#888;margin-left:10px">${week.label} · ${week.range}</span>
+  </div>
+  <div class="print-table-block">${buildTableHtml(week, viewWeek)}</div>`;
+  window.print();
+}
+
+function handlePrint() {
+  if (currentView === 'table') {
+    printTable();
+  } else {
+    printAll();
+  }
+}
+
+/* ═══════════════════════════════════════════
+   PAGE NAVIGATION
+═══════════════════════════════════════════ */
+function goHome(){ showSitePage('home'); }
+function goPage(page){ showSitePage(page); }
+
+function showSitePage(page){
+  document.querySelectorAll('.site-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+
+  document.querySelectorAll('.site-nav-link').forEach(l=>l.classList.remove('active'));
+  const navBtn = document.getElementById('nav-'+page);
+  if(navBtn) navBtn.classList.add('active');
+
+  if(page === 'home') renderAccountPanel();
+  if(page === 'teacher') renderAll();
+  if(page === 'student') {
+    backToClassList();
+  }
+}
+
+/* ═══════════════════════════════════════════
+   STUDENT SECTION
+═══════════════════════════════════════════ */
+let studentClassId = null;
+let studentViewYear  = new Date().getFullYear();
+let studentViewMonth = new Date().getMonth();
+let studentViewWeek  = 0;
+let classListDayFilter = null; // null = all days, otherwise 0-6
+
+// Figures out which week-of-month "today" falls into, for the current real month,
+// so we can tell students "this class is postponed this week" using the live calendar.
+function getCurrentWeekIndex(){
+  const now = new Date();
+  const weeks = getWeeksOfMonth(now.getFullYear(), now.getMonth());
+  const todayStr = now.toDateString();
+  for (let wi = 0; wi < weeks.length; wi++) {
+    if (weeks[wi].days.some(d => d.toDateString() === todayStr)) return { year: now.getFullYear(), month: now.getMonth(), wi };
+  }
+  return { year: now.getFullYear(), month: now.getMonth(), wi: 0 };
+}
+
+function isPostponedThisWeek(scheduleId){
+  const cur = getCurrentWeekIndex();
+  const ov = getOverride(cur.year, cur.month, cur.wi);
+  return ov.hidden.includes(scheduleId);
+}
+
+function renderDayFilterRow(){
+  const row = document.getElementById('day-filter-row');
+  const chips = DAYS_SHORT.map((d, i) => `
+    <button class="day-filter-chip${classListDayFilter===i?' active':''}" onclick="setDayFilter(${i})">${d}</button>
+  `).join('');
+  row.innerHTML = `
+    <button class="day-filter-chip${classListDayFilter===null?' active':''}" onclick="setDayFilter(null)">All days</button>
+    ${chips}
+  `;
+}
+
+function setDayFilter(di){
+  classListDayFilter = di;
+  renderDayFilterRow();
+  renderClassGrid();
+}
+
+function renderClassGrid(){
+  renderDayFilterRow();
+  const grid = document.getElementById('class-grid');
+
+  if(!schedules.length){
+    grid.innerHTML = `<div class="class-tile-no-results">No classes have been added yet.</div>`;
+    return;
+  }
+
+  const query = (document.getElementById('class-search')?.value || '').trim().toLowerCase();
+
+  const filtered = schedules.filter(s => {
+    const matchesQuery = !query || s.title.toLowerCase().includes(query) || (s.desc && s.desc.toLowerCase().includes(query));
+    const matchesDay = classListDayFilter === null || s.days.includes(classListDayFilter);
+    return matchesQuery && matchesDay;
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="class-tile-no-results">No classes match your search.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(s => {
+    const c = COLORS[s.color % COLORS.length];
+    const desc = s.desc ? s.desc : '&nbsp;';
+    const postponed = isPostponedThisWeek(s.id);
+    const badge = postponed ? `<span class="postponed-badge">Postponed this week</span>` : '';
+    return `
+      <div class="class-tile" onclick="openStudentClass(${s.id})">
+        <div class="class-tile-stripe" style="background:${c.border}"></div>
+        ${badge}
+        <div class="class-tile-title">${s.title}</div>
+        <div class="class-tile-desc">${desc}</div>
+        <div class="class-tile-meta">
+          ${s.days.map(d=>`<span class="class-tile-day">${DAYS_SHORT[d]}</span>`).join('')}
+        </div>
+        <div class="class-tile-time"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> ${s.start} – ${s.end}</div>
+      </div>`;
+  }).join('');
+}
+
+function backToClassList(){
+  studentClassId = null;
+  document.getElementById('student-list-view').style.display = 'block';
+  document.getElementById('student-class-view').style.display = 'none';
+  renderClassGrid();
+}
+
+function openStudentClass(id){
+  studentClassId = id;
+  studentViewYear  = new Date().getFullYear();
+  studentViewMonth = new Date().getMonth();
+  studentViewWeek  = 0;
+  document.getElementById('student-list-view').style.display = 'none';
+  document.getElementById('student-class-view').style.display = 'block';
+  renderStudentClassView();
+}
+
+function studentChangeMonth(delta){
+  studentViewMonth += delta;
+  if(studentViewMonth<0){studentViewMonth=11;studentViewYear--;}
+  if(studentViewMonth>11){studentViewMonth=0;studentViewYear++;}
+  studentViewWeek = 0;
+  renderStudentClassView();
+}
+
+function studentSelectWeek(wi){
+  studentViewWeek = wi;
+  renderStudentClassView();
+}
+
+function renderStudentClassView(){
+  const sched = schedules.find(s => s.id === studentClassId);
+  if(!sched){ backToClassList(); return; }
+
+  document.getElementById('student-class-title').textContent = sched.title;
+  document.getElementById('student-month-label').textContent = `${MONTHS[studentViewMonth]} ${studentViewYear}`;
+
+  const weeks = getWeeksOfMonth(studentViewYear, studentViewMonth);
+  if(studentViewWeek >= weeks.length) studentViewWeek = weeks.length-1;
+
+  const tabsEl = document.getElementById('student-week-tabs');
+  tabsEl.innerHTML = weeks.map((w,wi) => `
+    <button class="week-tab${wi===studentViewWeek?' active':''}" onclick="studentSelectWeek(${wi})">
+      ${w.label}<span class="week-tab-dates">${w.range}</span>
+    </button>`).join('');
+
+  const week = weeks[studentViewWeek];
+  const override = getOverride(studentViewYear, studentViewMonth, studentViewWeek);
+  const isHiddenThisWeek = override.hidden.includes(sched.id);
+  const c = COLORS[sched.color % COLORS.length];
+
+  const today = new Date();
+  const todayStr = today.toDateString();
+
+  let html = '';
+  if (isHiddenThisWeek) {
+    html += `<div class="postponed-banner">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+      This class is postponed for ${week.label} (${week.range}) — it will resume next time it's scheduled.
+    </div>`;
+  }
+
+  // ── Desktop table ──
+  let tableHtml = `<table class="tt-table" id="student-table"><thead><tr>
+    <th class="tt-time-col">Time</th>
+    ${week.days.map((date,di) => {
+      const dateStr = `${date.getDate()} ${MONTHS[date.getMonth()].slice(0,3)}`;
+      const isToday = date.toDateString() === todayStr;
+      return `<th class="tt-day-col"${isToday?' style="background:#EAF4FC;color:#3B86C9"':''}>${DAYS_FULL[di]}<br><span style="font-weight:400;color:${isToday?'#3B86C9':'#aaa'};font-size:10px">${dateStr}${isToday?' · Today':''}</span></th>`;
+    }).join('')}
+  </tr></thead><tbody><tr>
+    <td class="tt-time-col">${sched.start}<br>–<br>${sched.end}</td>
+    ${week.days.map((date,di) => {
+      const occurs = sched.days.includes(di) && !isHiddenThisWeek;
+      const cell = occurs
+        ? `<div class="tt-block" style="background:${c.bg};color:${c.text};border-left-color:${c.border};cursor:default">
+             <div class="tt-block-title">${sched.title}</div>
+             <div class="tt-block-time">${sched.start}–${sched.end}</div>
+             ${sched.desc?`<div class="tt-block-desc">${sched.desc}</div>`:''}
+           </div>`
+        : '';
+      return `<td><div class="tt-cell-inner">${cell}</div></td>`;
+    }).join('')}
+  </tr></tbody></table>`;
+
+  // ── Mobile accordion ──
+  const todayIdx = week.days.findIndex(d => d.toDateString() === todayStr);
+  let accordionHtml = `<div class="tt-accordion">`;
+  week.days.forEach((date, di) => {
+    const dateStr = `${date.getDate()} ${MONTHS[date.getMonth()].slice(0,3)}`;
+    const isToday = date.toDateString() === todayStr;
+    const occurs = sched.days.includes(di) && !isHiddenThisWeek;
+    const openAttr = (isToday || (todayIdx === -1 && di === 0)) ? ' open' : '';
+    const itemHtml = occurs
+      ? `<div class="tt-block" style="background:${c.bg};color:${c.text};border-left-color:${c.border};cursor:default">
+           <div class="tt-block-title">${sched.title}</div>
+           <div class="tt-block-time">${sched.start}–${sched.end}</div>
+           ${sched.desc?`<div class="tt-block-desc">${sched.desc}</div>`:''}
+         </div>`
+      : `<div class="tt-accordion-empty">No class</div>`;
+    accordionHtml += `
+      <details class="tt-accordion-day"${openAttr}>
+        <summary class="tt-accordion-summary${isToday?' is-today':''}">
+          <span class="tt-accordion-day-name">${DAYS_FULL[di]}${isToday?' · Today':''}</span>
+          <span class="tt-accordion-day-date">${dateStr}</span>
+          ${occurs?`<span class="tt-accordion-count">${sched.start}</span>`:''}
+        </summary>
+        <div class="tt-accordion-body">${itemHtml}</div>
+      </details>`;
+  });
+  accordionHtml += `</div>`;
+
+  html += `<div class="tt-table-scroll">${tableHtml}</div>${accordionHtml}`;
+
+  document.getElementById('student-table-wrap').innerHTML = html;
+}
+
+function saveStudentTableAsPng(){
+  const scrollWrap = document.querySelector('#student-table-wrap .tt-table-scroll');
+  const sched = schedules.find(s => s.id === studentClassId);
+  const filename = sched ? `${sched.title.replace(/\s+/g,'_')}_timetable.png` : 'class_timetable.png';
+  if (!scrollWrap) return;
+
+  // The desktop table is hidden via CSS on narrow screens (so the accordion shows instead).
+  // For a consistent, readable export, temporarily force the table visible while we
+  // capture it, then restore whatever the screen size would normally show.
+  const prevDisplay = scrollWrap.style.display;
+  scrollWrap.style.display = 'block';
+
+  html2canvas(scrollWrap, {backgroundColor:'#ffffff', scale:2}).then(canvas => {
+    scrollWrap.style.display = prevDisplay;
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(() => {
+    scrollWrap.style.display = prevDisplay;
+  });
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+document.getElementById('btn-add-sched').addEventListener('click',()=>showAddSchedModal(null,false));
+document.getElementById('modal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modal')) hideModal();
+});
+
+// Load this room's data (from the share-link hash, localStorage, or fresh sample data)
+const openedViaShareLink = window.location.hash && window.location.hash.length > 1;
+loadRoomData();
+
+// Clean the hash out of the address bar once we've read it, so further edits
+// don't keep growing the URL — the data now lives in localStorage for this room.
+if (window.history.replaceState) {
+  const cleanUrl = window.location.href.split('#')[0];
+  window.history.replaceState({}, '', cleanUrl);
+}
+
+// If someone opened an actual share link (had a hash), drop them straight
+// into the read-only Student section instead of the Home page.
+if (openedViaShareLink) {
+  showSitePage('student');
+} else {
+  showSitePage('home');
+}
+</script>
+</body>
+</html>
